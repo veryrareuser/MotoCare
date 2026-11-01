@@ -5,7 +5,7 @@ return [
     'customer' => [
         ['section' => 'Menu', 'label' => 'Dashboard', 'route' => 'dashboard', 'icon' => 'dashboard'],
         ['label' => 'Kendaraan Saya', 'route' => 'motorcycles.index', 'active' => 'motorcycles.*', 'icon' => 'motorcycle'],
-        ['label' => 'Booking Servis', 'icon' => 'calendar'],
+        ['label' => 'Booking Servis', 'route' => 'bookings.index', 'active' => 'bookings.*', 'icon' => 'calendar'],
         ['label' => 'Tracking Servis', 'icon' => 'history'],
         ['label' => 'Katalog Sparepart', 'route' => 'spareparts.index', 'active' => 'spareparts.*', 'icon' => 'box'],
         ['label' => 'Riwayat Servis', 'icon' => 'clock'],
@@ -15,8 +15,7 @@ return [
 
     'admin' => [
         ['section' => 'Menu', 'label' => 'Dashboard', 'route' => 'staff.dashboard', 'icon' => 'dashboard'],
-        ['label' => 'Antrean', 'icon' => 'clipboard'],
-        ['label' => 'Booking', 'icon' => 'calendar'],
+        ['label' => 'Antrean & Booking', 'route' => 'staff.bookings.index', 'active' => 'staff.bookings.*', 'icon' => 'clipboard'],
         ['label' => 'Pelanggan', 'icon' => 'users'],
         ['section' => 'Operasional', 'label' => 'Servis', 'icon' => 'wrench'],
         ['label' => 'Layanan', 'route' => 'staff.services.index', 'active' => 'staff.services.*', 'icon' => 'check'],
@@ -28,6 +27,7 @@ return [
 
     'mechanic' => [
         ['section' => 'Menu', 'label' => 'Dashboard', 'route' => 'staff.dashboard', 'icon' => 'dashboard'],
+        ['label' => 'Antrean', 'route' => 'staff.bookings.index', 'active' => 'staff.bookings.*', 'icon' => 'clipboard'],
         ['label' => 'Tugas Saya', 'icon' => 'wrench'],
         ['label' => 'Riwayat Pengerjaan', 'icon' => 'history'],
         ['label' => 'Sparepart', 'route' => 'staff.spareparts.index', 'active' => 'staff.spareparts.*', 'icon' => 'box'],
@@ -44,6 +44,7 @@ return [
 
     'cashier' => [
         ['section' => 'Menu', 'label' => 'Dashboard', 'route' => 'staff.dashboard', 'icon' => 'dashboard'],
+        ['label' => 'Antrean', 'route' => 'staff.bookings.index', 'active' => 'staff.bookings.*', 'icon' => 'clipboard'],
         ['label' => 'Invoice', 'icon' => 'clipboard'],
         ['label' => 'Pembayaran', 'icon' => 'cash'],
         ['label' => 'Profil', 'route' => 'profile.edit', 'icon' => 'user'],
@@ -51,6 +52,7 @@ return [
 
     'owner' => [
         ['section' => 'Menu', 'label' => 'Dashboard', 'route' => 'staff.dashboard', 'icon' => 'dashboard'],
+        ['label' => 'Antrean', 'route' => 'staff.bookings.index', 'active' => 'staff.bookings.*', 'icon' => 'clipboard'],
         ['label' => 'Laporan', 'icon' => 'chart'],
         ['section' => 'Data', 'label' => 'Pelanggan', 'icon' => 'users'],
         ['label' => 'Servis', 'icon' => 'wrench'],

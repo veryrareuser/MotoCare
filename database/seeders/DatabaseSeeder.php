@@ -43,6 +43,8 @@ class DatabaseSeeder extends Seeder
             MotorcycleSeeder::class,
             ServiceTypeSeeder::class,
             SparepartSeeder::class,
+            WorkshopScheduleSeeder::class,
+            BookingSeeder::class,
         ]);
     }
 }

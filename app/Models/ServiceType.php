@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 #[Fillable(['name', 'description', 'base_price', 'estimated_duration_minutes', 'is_active'])]
@@ -35,6 +36,14 @@ class ServiceType extends Model
     public function scopeActive(Builder $query): Builder
     {
         return $query->where('is_active', true);
+    }
+
+    /**
+     * @return HasMany<BookingService, $this>
+     */
+    public function bookingServices(): HasMany
+    {
+        return $this->hasMany(BookingService::class);
     }
 
     public function formattedPrice(): string

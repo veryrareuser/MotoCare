@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Staff\BookingController;
 use App\Http\Controllers\Staff\DashboardController;
 use App\Http\Controllers\Staff\ServiceTypeController;
 use App\Http\Controllers\Staff\SparepartCompatibilityController;
@@ -12,6 +13,29 @@ Route::middleware(['auth'])->prefix('staff')->name('staff.')->group(function () 
     Route::get('/dashboard', DashboardController::class)
         ->middleware('role:admin,mechanic,inventory_staff,cashier,owner')
         ->name('dashboard');
+
+    Route::middleware('role:admin,mechanic,cashier,owner')->group(function () {
+        Route::get('/bookings', [BookingController::class, 'index'])
+            ->name('bookings.index');
+
+        Route::get('/bookings/{booking}', [BookingController::class, 'show'])
+            ->whereNumber('booking')
+            ->name('bookings.show');
+    });
+
+    Route::middleware('role:admin,mechanic,cashier')->group(function () {
+        Route::post('/bookings/{booking}/check-in', [BookingController::class, 'checkIn'])
+            ->whereNumber('booking')
+            ->name('bookings.check-in');
+
+        Route::patch('/bookings/{booking}/cancel', [BookingController::class, 'cancel'])
+            ->whereNumber('booking')
+            ->name('bookings.cancel');
+
+        Route::patch('/bookings/{booking}/no-show', [BookingController::class, 'noShow'])
+            ->whereNumber('booking')
+            ->name('bookings.no-show');
+    });
 
     Route::middleware('role:admin,mechanic,inventory_staff,cashier,owner')->group(function () {
         Route::get('/services', [ServiceTypeController::class, 'index'])
