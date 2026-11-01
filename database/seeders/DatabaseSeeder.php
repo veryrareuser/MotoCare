@@ -26,7 +26,7 @@ class DatabaseSeeder extends Seeder
         ];
 
         foreach ($users as $user) {
-            User::query()->updateOrCreate(
+            $account = User::query()->updateOrCreate(
                 ['email' => $user['email']],
                 [
                     'name' => $user['name'],
@@ -35,6 +35,10 @@ class DatabaseSeeder extends Seeder
                     'is_active' => true,
                 ],
             );
+
+            $account->markEmailAsVerified();
         }
+
+        $this->call(MotorcycleSeeder::class);
     }
 }

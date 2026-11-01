@@ -48,12 +48,15 @@ class RoleAccessTest extends TestCase
         $this->actingAs($staff)->get('/dashboard')->assertForbidden();
     }
 
-    public function test_inactive_user_cannot_access_any_dashboard(): void
+    public function test_inactive_user_is_logged_out_on_their_next_request(): void
     {
         $user = User::factory()->role(UserRole::Admin)->inactive()->create();
 
-        $this->actingAs($user)->get('/staff/dashboard')->assertForbidden();
-        $this->actingAs($user)->get('/dashboard')->assertForbidden();
+        $this->actingAs($user)
+            ->get('/staff/dashboard')
+            ->assertRedirect('/login');
+
+        $this->assertGuest();
     }
 
     public function test_staff_visiting_login_is_redirected_to_staff_dashboard(): void

@@ -47,7 +47,7 @@
             @if (isset($item['route']))
                 <a
                     href="{{ route($item['route']) }}"
-                    class="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition {{ request()->routeIs($item['route']) ? 'bg-brand text-ink' : 'text-white/70 hover:bg-white/10 hover:text-white' }}"
+                    class="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition {{ request()->routeIs($item['active'] ?? $item['route']) ? 'bg-brand text-ink' : 'text-white/70 hover:bg-white/10 hover:text-white' }}"
                 >
                     <x-icon :name="$item['icon']" class="h-5 w-5 shrink-0" />
                     <span>{{ $item['label'] }}</span>

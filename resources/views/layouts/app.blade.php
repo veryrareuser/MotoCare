@@ -22,6 +22,13 @@
                 @include('layouts.topbar')
 
                 <main class="flex-1 px-5 py-6 sm:px-8 lg:px-[34px] lg:py-8">
+                    @if (session('success'))
+                        <div class="mb-5 flex items-start gap-3 rounded-xl border border-brand-soft bg-brand-soft/60 px-4 py-3 text-sm font-medium text-brand-dark">
+                            <x-icon name="check" class="mt-0.5 h-4 w-4 shrink-0" />
+                            <p>{{ session('success') }}</p>
+                        </div>
+                    @endif
+
                     {{ $slot }}
                 </main>
             </div>

@@ -4,7 +4,7 @@ return [
 
     'customer' => [
         ['section' => 'Menu', 'label' => 'Dashboard', 'route' => 'dashboard', 'icon' => 'dashboard'],
-        ['label' => 'Kendaraan Saya', 'icon' => 'motorcycle'],
+        ['label' => 'Kendaraan Saya', 'route' => 'motorcycles.index', 'active' => 'motorcycles.*', 'icon' => 'motorcycle'],
         ['label' => 'Booking Servis', 'icon' => 'calendar'],
         ['label' => 'Tracking Servis', 'icon' => 'history'],
         ['label' => 'Katalog Sparepart', 'icon' => 'box'],
@@ -22,6 +22,7 @@ return [
         ['label' => 'Layanan', 'icon' => 'check'],
         ['label' => 'Sparepart', 'icon' => 'box'],
         ['label' => 'Pengingat', 'icon' => 'bell'],
+        ['section' => 'Pengaturan', 'label' => 'Akun Staf', 'route' => 'staff.accounts.index', 'active' => 'staff.accounts.*', 'icon' => 'shield'],
         ['label' => 'Profil', 'route' => 'profile.edit', 'icon' => 'user'],
     ],
 
@@ -53,6 +54,7 @@ return [
         ['section' => 'Data', 'label' => 'Pelanggan', 'icon' => 'users'],
         ['label' => 'Servis', 'icon' => 'wrench'],
         ['label' => 'Sparepart', 'icon' => 'box'],
+        ['label' => 'Akun Staf', 'route' => 'staff.accounts.index', 'active' => 'staff.accounts.*', 'icon' => 'shield'],
         ['label' => 'Profil', 'route' => 'profile.edit', 'icon' => 'user'],
     ],
 

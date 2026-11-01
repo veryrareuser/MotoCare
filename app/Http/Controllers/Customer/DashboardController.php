@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Customer;
 
 use App\Http\Controllers\Controller;
+use App\Models\Motorcycle;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
@@ -13,12 +14,14 @@ class DashboardController extends Controller
      */
     public function __invoke(Request $request): View
     {
+        $motorcycleCount = $request->user()->motorcycles()->count();
+
         return view('customer.dashboard', [
             'metrics' => [
                 [
                     'label' => 'Motor Terdaftar',
-                    'value' => '0',
-                    'hint' => 'Maksimal 5 unit',
+                    'value' => (string) $motorcycleCount,
+                    'hint' => $motorcycleCount.' dari '.Motorcycle::MAX_PER_CUSTOMER.' slot terpakai',
                     'icon' => 'motorcycle',
                     'tone' => 'brand',
                 ],

@@ -38,4 +38,21 @@ enum UserRole: string
             array_filter(self::cases(), fn (self $role): bool => $role->isStaff()),
         ));
     }
+
+    /**
+     * Roles an admin may assign when provisioning staff accounts.
+     *
+     * Owner accounts are provisioned outside the staff management screen.
+     *
+     * @return list<string>
+     */
+    public static function assignableStaffValues(): array
+    {
+        return [
+            self::Admin->value,
+            self::Mechanic->value,
+            self::InventoryStaff->value,
+            self::Cashier->value,
+        ];
+    }
 }
