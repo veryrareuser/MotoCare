@@ -39,6 +39,10 @@ class DatabaseSeeder extends Seeder
             $account->markEmailAsVerified();
         }
 
-        $this->call(MotorcycleSeeder::class);
+        $this->call([
+            MotorcycleSeeder::class,
+            ServiceTypeSeeder::class,
+            SparepartSeeder::class,
+        ]);
     }
 }
