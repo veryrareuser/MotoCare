@@ -1,0 +1,14 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+    [x-cloak] {
+        display: none !important;
+    }
+
+    ::selection {
+        background-color: #d7ff00;
+        color: #1d1d1d;
+    }
+}
