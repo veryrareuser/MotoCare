@@ -7,6 +7,7 @@
     $canRecordPart = auth()->user()->can('recordPart', $serviceOrder);
     $isLocked = $serviceOrder->isLocked();
     $nextStatus = old('status', $allowedStatuses[0]->value ?? '');
+    $invoice = $serviceOrder->invoice;
 @endphp
 
 <x-app-layout :title="'Work Order '.$serviceOrder->work_order_number">
@@ -45,6 +46,16 @@
                 >
                     <x-icon name="clipboard" class="h-4 w-4" />
                     Lihat antrean {{ $serviceOrder->booking->queue_number }}
+                </a>
+            @endif
+
+            @if ($invoice && auth()->user()->can('view', $invoice))
+                <a
+                    href="{{ route('staff.invoices.show', $invoice) }}"
+                    class="inline-flex items-center gap-2 rounded-[10px] border border-line bg-white px-4 py-2.5 text-sm font-semibold text-ink transition hover:bg-canvas"
+                >
+                    <x-icon name="cash" class="h-4 w-4" />
+                    Lihat invoice
                 </a>
             @endif
         </div>

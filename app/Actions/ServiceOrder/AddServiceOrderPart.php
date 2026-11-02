@@ -2,8 +2,10 @@
 
 namespace App\Actions\ServiceOrder;
 
+use App\Actions\Billing\SyncInvoiceItems;
 use App\Actions\Inventory\RecordStockMovement;
 use App\Enums\InventoryMovementType;
+use App\Models\Invoice;
 use App\Models\ServiceOrder;
 use App\Models\ServiceOrderPart;
 use App\Models\Sparepart;
@@ -15,6 +17,7 @@ class AddServiceOrderPart
 {
     public function __construct(
         private RecordStockMovement $recordStockMovement,
+        private SyncInvoiceItems $syncInvoiceItems,
     ) {}
 
     /**
@@ -76,7 +79,18 @@ class AddServiceOrderPart
 
             $line->update(['inventory_movement_id' => $movement->getKey()]);
 
+            $this->syncInvoice($locked);
+
             return $line->load('sparepart');
         });
+    }
+
+    private function syncInvoice(ServiceOrder $serviceOrder): void
+    {
+        $invoice = $serviceOrder->invoice()->first();
+
+        if ($invoice instanceof Invoice) {
+            $this->syncInvoiceItems->handle($invoice, $serviceOrder);
+        }
     }
 }

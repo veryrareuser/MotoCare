@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Customer\BookingController;
 use App\Http\Controllers\Customer\DashboardController;
+use App\Http\Controllers\Customer\InvoiceController;
 use App\Http\Controllers\Customer\MotorcycleController;
 use App\Http\Controllers\Customer\SparepartCatalogController;
 use Illuminate\Support\Facades\Route;
@@ -25,4 +26,12 @@ Route::middleware(['auth', 'role:customer'])->group(function () {
         ->name('bookings.cancel');
 
     Route::get('/spareparts', SparepartCatalogController::class)->name('spareparts.index');
+
+    Route::get('/invoices', [InvoiceController::class, 'index'])->name('invoices.index');
+    Route::get('/invoices/{invoice}/receipt', [InvoiceController::class, 'receipt'])
+        ->whereNumber('invoice')
+        ->name('invoices.receipt');
+    Route::get('/invoices/{invoice}', [InvoiceController::class, 'show'])
+        ->whereNumber('invoice')
+        ->name('invoices.show');
 });

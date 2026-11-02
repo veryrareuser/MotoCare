@@ -2,8 +2,10 @@
 
 namespace App\Actions\ServiceOrder;
 
+use App\Actions\Billing\SyncInvoiceItems;
 use App\Actions\Inventory\RecordStockMovement;
 use App\Enums\InventoryMovementType;
+use App\Models\Invoice;
 use App\Models\ServiceOrder;
 use App\Models\ServiceOrderPart;
 use App\Models\Sparepart;
@@ -15,6 +17,7 @@ class RemoveServiceOrderPart
 {
     public function __construct(
         private RecordStockMovement $recordStockMovement,
+        private SyncInvoiceItems $syncInvoiceItems,
     ) {}
 
     /**
@@ -36,6 +39,14 @@ class RemoveServiceOrderPart
             if ($locked->status->isLocked()) {
                 throw ValidationException::withMessages([
                     'part' => 'Sparepart tidak dapat dihapus setelah work order selesai.',
+                ]);
+            }
+
+            $invoice = $locked->invoice()->first();
+
+            if ($invoice instanceof Invoice && (float) $invoice->paid_amount > 0) {
+                throw ValidationException::withMessages([
+                    'part' => 'Sparepart tidak dapat dihapus karena invoice sudah memiliki pembayaran.',
                 ]);
             }
 
@@ -63,6 +74,17 @@ class RemoveServiceOrderPart
             }
 
             $lockedLine->delete();
+
+            $this->syncInvoice($locked);
         });
+    }
+
+    private function syncInvoice(ServiceOrder $serviceOrder): void
+    {
+        $invoice = $serviceOrder->invoice()->first();
+
+        if ($invoice instanceof Invoice) {
+            $this->syncInvoiceItems->handle($invoice, $serviceOrder);
+        }
     }
 }

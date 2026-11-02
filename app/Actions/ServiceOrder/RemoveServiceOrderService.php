@@ -2,6 +2,8 @@
 
 namespace App\Actions\ServiceOrder;
 
+use App\Actions\Billing\SyncInvoiceItems;
+use App\Models\Invoice;
 use App\Models\ServiceOrder;
 use App\Models\ServiceOrderService;
 use Illuminate\Support\Facades\DB;
@@ -9,6 +11,10 @@ use Illuminate\Validation\ValidationException;
 
 class RemoveServiceOrderService
 {
+    public function __construct(
+        private SyncInvoiceItems $syncInvoiceItems,
+    ) {}
+
     /**
      * Remove a service line from an open work order.
      *
@@ -28,11 +34,30 @@ class RemoveServiceOrderService
                 ]);
             }
 
+            $invoice = $locked->invoice()->first();
+
+            if ($invoice instanceof Invoice && (float) $invoice->paid_amount > 0) {
+                throw ValidationException::withMessages([
+                    'service' => 'Layanan tidak dapat dihapus karena invoice sudah memiliki pembayaran.',
+                ]);
+            }
+
             $locked->services()
                 ->whereKey($line->getKey())
                 ->lockForUpdate()
                 ->firstOrFail()
                 ->delete();
+
+            $this->syncInvoice($locked);
         });
+    }
+
+    private function syncInvoice(ServiceOrder $serviceOrder): void
+    {
+        $invoice = $serviceOrder->invoice()->first();
+
+        if ($invoice instanceof Invoice) {
+            $this->syncInvoiceItems->handle($invoice, $serviceOrder);
+        }
     }
 }

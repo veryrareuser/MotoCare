@@ -135,6 +135,7 @@ class ServiceOrderController extends Controller
             'services.serviceType',
             'parts.sparepart',
             'statusLogs.changedBy',
+            'invoice',
         ]);
 
         $assignedMechanicIds = $serviceOrder->activeMechanicAssignments

@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Staff\BookingController;
 use App\Http\Controllers\Staff\DashboardController;
+use App\Http\Controllers\Staff\InvoiceController;
 use App\Http\Controllers\Staff\ServiceOrderController;
 use App\Http\Controllers\Staff\ServiceOrderMechanicController;
 use App\Http\Controllers\Staff\ServiceOrderPartController;
@@ -86,6 +87,29 @@ Route::middleware(['auth'])->prefix('staff')->name('staff.')->group(function () 
         Route::delete('/service-orders/{serviceOrder}/parts/{line}', [ServiceOrderPartController::class, 'destroy'])
             ->whereNumber(['serviceOrder', 'line'])
             ->name('service-orders.parts.destroy');
+    });
+
+    Route::middleware('role:admin,cashier,owner')->group(function () {
+        Route::get('/invoices', [InvoiceController::class, 'index'])
+            ->name('invoices.index');
+
+        Route::get('/invoices/{invoice}/receipt', [InvoiceController::class, 'receipt'])
+            ->whereNumber('invoice')
+            ->name('invoices.receipt');
+
+        Route::get('/invoices/{invoice}', [InvoiceController::class, 'show'])
+            ->whereNumber('invoice')
+            ->name('invoices.show');
+    });
+
+    Route::middleware('role:cashier')->group(function () {
+        Route::patch('/invoices/{invoice}/deposit', [InvoiceController::class, 'updateDeposit'])
+            ->whereNumber('invoice')
+            ->name('invoices.deposit.update');
+
+        Route::post('/invoices/{invoice}/payments', [InvoiceController::class, 'storePayment'])
+            ->whereNumber('invoice')
+            ->name('invoices.payments.store');
     });
 
     Route::middleware('role:admin,mechanic,inventory_staff,cashier,owner')->group(function () {

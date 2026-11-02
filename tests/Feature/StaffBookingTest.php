@@ -7,6 +7,7 @@ use App\Enums\ServiceOrderStatus;
 use App\Enums\UserRole;
 use App\Models\Booking;
 use App\Models\BookingSlot;
+use App\Models\Invoice;
 use App\Models\Motorcycle;
 use App\Models\ServiceOrder;
 use App\Models\ServiceType;
@@ -152,6 +153,21 @@ class StaffBookingTest extends TestCase
             'old_status' => null,
             'new_status' => ServiceOrderStatus::WaitingQueue->value,
         ]);
+
+        $invoice = $serviceOrder->invoice()->firstOrFail();
+
+        $this->assertTrue($invoice->isDraft());
+        $this->assertSame('INV-20261102-001', $invoice->invoice_number);
+        $this->assertSame('75000.00', $invoice->total_amount);
+        $this->assertSame('75000.00', $invoice->remaining_amount);
+
+        $this->assertDatabaseHas('invoice_items', [
+            'invoice_id' => $invoice->id,
+            'service_type_id' => $serviceType->id,
+            'description' => 'Servis ringan',
+            'unit_price' => 75000,
+            'line_total' => 75000,
+        ]);
     }
 
     public function test_a_booking_cannot_be_checked_in_twice(): void
@@ -170,6 +186,7 @@ class StaffBookingTest extends TestCase
 
         $this->assertSame(1, $booking->statusLogs()->count());
         $this->assertSame(1, ServiceOrder::query()->where('booking_id', $booking->id)->count());
+        $this->assertSame(1, Invoice::query()->count());
     }
 
     public function test_staff_can_mark_a_booking_as_no_show_and_release_the_slot(): void

@@ -2,6 +2,7 @@
 
 namespace App\Actions\ServiceOrder;
 
+use App\Actions\Billing\CreateInvoiceForServiceOrder;
 use App\Enums\ServiceOrderStatus;
 use App\Enums\UserRole;
 use App\Models\Motorcycle;
@@ -15,6 +16,7 @@ class CreateWalkInServiceOrder
 {
     public function __construct(
         private NextWorkOrderNumber $nextWorkOrderNumber,
+        private CreateInvoiceForServiceOrder $createInvoiceForServiceOrder,
     ) {}
 
     /**
@@ -97,6 +99,8 @@ class CreateWalkInServiceOrder
                 'notes' => 'Work order walk-in dibuat.',
             ]);
 
+            $this->createInvoiceForServiceOrder->handle($serviceOrder);
+
             $lockedMotorcycle->update(['odometer_current' => $odometerIn]);
 
             return $serviceOrder->load([
@@ -104,6 +108,7 @@ class CreateWalkInServiceOrder
                 'motorcycle',
                 'services.serviceType',
                 'statusLogs.changedBy',
+                'invoice.items',
             ]);
         });
     }

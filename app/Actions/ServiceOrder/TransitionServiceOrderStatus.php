@@ -2,6 +2,7 @@
 
 namespace App\Actions\ServiceOrder;
 
+use App\Actions\Billing\FinalizeServiceOrderInvoice;
 use App\Enums\ServiceOrderStatus;
 use App\Models\Motorcycle;
 use App\Models\ServiceOrder;
@@ -12,6 +13,10 @@ use Illuminate\Validation\ValidationException;
 
 class TransitionServiceOrderStatus
 {
+    public function __construct(
+        private FinalizeServiceOrderInvoice $finalizeServiceOrderInvoice,
+    ) {}
+
     /**
      * Move a work order to its next status and append the history row.
      *
@@ -61,6 +66,10 @@ class TransitionServiceOrderStatus
 
             $locked->update($attributes);
 
+            if ($newStatus === ServiceOrderStatus::Completed) {
+                $this->finalizeServiceOrderInvoice->handle($locked);
+            }
+
             $locked->statusLogs()->create([
                 'changed_by' => $actor->getKey(),
                 'old_status' => $oldStatus,
@@ -76,6 +85,8 @@ class TransitionServiceOrderStatus
                 'services.serviceType',
                 'parts.sparepart',
                 'statusLogs.changedBy',
+                'invoice.items',
+                'invoice.payments',
             ]);
         });
     }

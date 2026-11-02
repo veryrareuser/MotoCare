@@ -85,6 +85,11 @@ class ServiceOrderWorkflowTest extends TestCase
         $this->assertNotNull($serviceOrder->completed_at);
         $this->assertSame(20080, $serviceOrder->motorcycle->fresh()->odometer_current);
 
+        $invoice = $serviceOrder->invoice()->firstOrFail();
+
+        $this->assertNotNull($invoice->issued_at);
+        $this->assertNotNull($invoice->finalized_at);
+
         $this->actingAs($mechanic)
             ->from($url)
             ->patch($url.'/status', ['status' => ServiceOrderStatus::PickedUp->value])

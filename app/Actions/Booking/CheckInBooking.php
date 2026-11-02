@@ -2,6 +2,7 @@
 
 namespace App\Actions\Booking;
 
+use App\Actions\Billing\CreateInvoiceForServiceOrder;
 use App\Actions\ServiceOrder\NextWorkOrderNumber;
 use App\Enums\BookingStatus;
 use App\Enums\ServiceOrderStatus;
@@ -17,6 +18,7 @@ class CheckInBooking
 {
     public function __construct(
         private NextWorkOrderNumber $nextWorkOrderNumber,
+        private CreateInvoiceForServiceOrder $createInvoiceForServiceOrder,
     ) {}
 
     /**
@@ -99,6 +101,8 @@ class CheckInBooking
                 'reason' => 'Check-in oleh staf. Work order '.$number['number'].' dibuat.',
             ]);
 
+            $this->createInvoiceForServiceOrder->handle($serviceOrder);
+
             $motorcycle->update(['odometer_current' => $odometerIn]);
 
             return $serviceOrder->load([
@@ -107,6 +111,7 @@ class CheckInBooking
                 'motorcycle',
                 'services.serviceType',
                 'statusLogs.changedBy',
+                'invoice.items',
             ]);
         });
     }
