@@ -57,6 +57,14 @@ class Sparepart extends Model
     }
 
     /**
+     * @return HasMany<ServiceOrderPart, $this>
+     */
+    public function serviceOrderParts(): HasMany
+    {
+        return $this->hasMany(ServiceOrderPart::class);
+    }
+
+    /**
      * Scope the query to spareparts that are still sold.
      */
     public function scopeActive(Builder $query): Builder

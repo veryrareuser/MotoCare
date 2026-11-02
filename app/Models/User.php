@@ -67,6 +67,22 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasMany(Booking::class);
     }
 
+    /**
+     * @return HasMany<ServiceOrder, $this>
+     */
+    public function serviceOrders(): HasMany
+    {
+        return $this->hasMany(ServiceOrder::class, 'customer_id');
+    }
+
+    /**
+     * @return HasMany<ServiceOrderMechanic, $this>
+     */
+    public function mechanicAssignments(): HasMany
+    {
+        return $this->hasMany(ServiceOrderMechanic::class, 'mechanic_id');
+    }
+
     public function initials(): string
     {
         return Str::of($this->name)

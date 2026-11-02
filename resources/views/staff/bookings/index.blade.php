@@ -1,7 +1,8 @@
 @php
     $total = (int) $counts->sum();
     $confirmed = (int) ($counts[App\Enums\BookingStatus::Confirmed->value] ?? 0);
-    $checkedIn = (int) ($counts[App\Enums\BookingStatus::CheckedIn->value] ?? 0);
+    $checkedIn = (int) ($counts[App\Enums\BookingStatus::CheckedIn->value] ?? 0)
+        + (int) ($counts[App\Enums\BookingStatus::ConvertedToService->value] ?? 0);
     $closed = (int) ($counts[App\Enums\BookingStatus::Cancelled->value] ?? 0)
         + (int) ($counts[App\Enums\BookingStatus::NoShow->value] ?? 0);
 @endphp
@@ -63,7 +64,7 @@
             <div class="rounded-2xl border border-line bg-white p-5 shadow-card">
                 <p class="text-[10px] font-bold uppercase tracking-[0.14em] text-muted">Sudah check-in</p>
                 <p class="mt-2 text-2xl font-semibold tracking-tight text-ink">{{ $checkedIn }}</p>
-                <p class="mt-1 text-xs text-muted">Siap dikerjakan</p>
+                <p class="mt-1 text-xs text-muted">Termasuk yang sudah menjadi work order</p>
             </div>
 
             <div class="rounded-2xl border border-line bg-white p-5 shadow-card">
@@ -159,16 +160,13 @@
                                 <td class="px-6 py-4">
                                     <div class="flex items-center justify-end gap-2">
                                         @can('checkIn', $booking)
-                                            <form method="POST" action="{{ route('staff.bookings.check-in', $booking) }}">
-                                                @csrf
-                                                <button
-                                                    type="submit"
-                                                    class="inline-flex items-center gap-1.5 rounded-[10px] bg-brand px-3 py-1.5 text-xs font-bold text-ink transition hover:bg-brand-accent"
-                                                >
-                                                    <x-icon name="check" class="h-3.5 w-3.5" />
-                                                    Check-in
-                                                </button>
-                                            </form>
+                                            <a
+                                                href="{{ route('staff.bookings.show', $booking) }}"
+                                                class="inline-flex items-center gap-1.5 rounded-[10px] bg-brand px-3 py-1.5 text-xs font-bold text-ink transition hover:bg-brand-accent"
+                                            >
+                                                <x-icon name="check" class="h-3.5 w-3.5" />
+                                                Check-in
+                                            </a>
                                         @endcan
 
                                         <a

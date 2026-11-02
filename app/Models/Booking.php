@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 #[Fillable([
     'booking_number',
@@ -87,6 +88,14 @@ class Booking extends Model
     public function statusLogs(): HasMany
     {
         return $this->hasMany(BookingStatusLog::class);
+    }
+
+    /**
+     * @return HasOne<ServiceOrder, $this>
+     */
+    public function serviceOrder(): HasOne
+    {
+        return $this->hasOne(ServiceOrder::class);
     }
 
     /**

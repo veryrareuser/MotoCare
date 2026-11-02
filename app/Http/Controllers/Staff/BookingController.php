@@ -8,14 +8,13 @@ use App\Actions\Booking\MarkBookingNoShow;
 use App\Enums\BookingStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\CancelBookingRequest;
+use App\Http\Requests\CheckInBookingRequest;
 use App\Models\Booking;
-use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\View\View;
-use Throwable;
 
 class BookingController extends Controller
 {
@@ -26,7 +25,7 @@ class BookingController extends Controller
     {
         Gate::authorize('viewAny', Booking::class);
 
-        $date = $this->resolveDate($request->query('date'));
+        $date = $this->resolveDateFilter($request->query('date'));
         $status = BookingStatus::tryFrom($request->string('status')->toString());
         $search = $request->string('search')->trim()->toString();
 
@@ -67,7 +66,14 @@ class BookingController extends Controller
     {
         Gate::authorize('view', $booking);
 
-        $booking->load(['motorcycle', 'customer', 'slot', 'services.serviceType', 'statusLogs.changedBy']);
+        $booking->load([
+            'motorcycle',
+            'customer',
+            'slot',
+            'services.serviceType',
+            'statusLogs.changedBy',
+            'serviceOrder',
+        ]);
 
         return view('staff.bookings.show', [
             'booking' => $booking,
@@ -78,17 +84,20 @@ class BookingController extends Controller
      * Check the customer in when they arrive.
      */
     public function checkIn(
-        Request $request,
+        CheckInBookingRequest $request,
         Booking $booking,
         CheckInBooking $checkInBooking,
     ): RedirectResponse {
-        Gate::authorize('checkIn', $booking);
-
-        $checkInBooking->handle($booking, $request->user());
+        $serviceOrder = $checkInBooking->handle(
+            $booking,
+            $request->user(),
+            $request->integer('odometer_in'),
+        );
 
         return redirect()
-            ->route('staff.bookings.show', $booking)
-            ->with('success', 'Booking '.$booking->queue_number.' berhasil check-in.');
+            ->route('staff.service-orders.show', $serviceOrder)
+            ->with('success', 'Booking '.$booking->queue_number.' berhasil check-in. Work order '
+                .$serviceOrder->work_order_number.' dibuat.');
     }
 
     /**
@@ -129,29 +138,5 @@ class BookingController extends Controller
         return redirect()
             ->route('staff.bookings.show', $booking)
             ->with('success', 'Booking '.$booking->queue_number.' ditandai tidak hadir.');
-    }
-
-    /**
-     * Resolve the requested queue date, falling back to today.
-     */
-    private function resolveDate(mixed $value): CarbonImmutable
-    {
-        $today = CarbonImmutable::now(config('app.display_timezone'))->startOfDay();
-
-        if (! is_string($value) || preg_match('/^\d{4}-\d{2}-\d{2}$/', $value) !== 1) {
-            return $today;
-        }
-
-        try {
-            $date = CarbonImmutable::createFromFormat('Y-m-d', $value, config('app.display_timezone'));
-
-            if ($date === null || $date->format('Y-m-d') !== $value) {
-                return $today;
-            }
-
-            return $date->startOfDay();
-        } catch (Throwable) {
-            return $today;
-        }
     }
 }

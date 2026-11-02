@@ -2,6 +2,7 @@
     $canCheckIn = auth()->user()->can('checkIn', $booking);
     $canCancel = auth()->user()->can('cancel', $booking);
     $canNoShow = auth()->user()->can('markNoShow', $booking);
+    $serviceOrder = $booking->serviceOrder;
 @endphp
 
 <x-app-layout :title="'Antrean '.$booking->queue_number">
@@ -13,6 +14,13 @@
             <x-icon name="arrow-left" class="h-4 w-4" />
             Kembali ke antrean
         </a>
+
+        @if ($errors->has('odometer_in'))
+            <div class="flex items-start gap-3 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+                <x-icon name="alert" class="mt-0.5 h-4 w-4 shrink-0" />
+                <p>{{ $errors->first('odometer_in') }}</p>
+            </div>
+        @endif
 
         <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
             <div class="flex items-start gap-4">
@@ -36,16 +44,15 @@
             @if ($canCheckIn || $canCancel || $canNoShow)
                 <div class="flex flex-wrap items-center gap-2">
                     @if ($canCheckIn)
-                        <form method="POST" action="{{ route('staff.bookings.check-in', $booking) }}">
-                            @csrf
-                            <button
-                                type="submit"
-                                class="inline-flex items-center gap-2 rounded-[10px] bg-brand px-4 py-2.5 text-sm font-bold text-ink shadow-sm transition hover:bg-brand-accent"
-                            >
-                                <x-icon name="check" class="h-4 w-4" />
-                                Check-in
-                            </button>
-                        </form>
+                        <button
+                            type="button"
+                            class="inline-flex items-center gap-2 rounded-[10px] bg-brand px-4 py-2.5 text-sm font-bold text-ink shadow-sm transition hover:bg-brand-accent"
+                            x-data=""
+                            x-on:click.prevent="$dispatch('open-modal', 'check-in-booking')"
+                        >
+                            <x-icon name="check" class="h-4 w-4" />
+                            Check-in
+                        </button>
                     @endif
 
                     @if ($canNoShow)
@@ -76,6 +83,32 @@
 
         <div class="grid gap-5 lg:grid-cols-[minmax(0,1fr)_340px]">
             <div class="space-y-5">
+                @if ($serviceOrder)
+                    <section class="flex flex-col gap-4 rounded-2xl border border-brand-accent/40 bg-brand-soft/40 p-5 sm:flex-row sm:items-center sm:justify-between">
+                        <div class="flex items-start gap-3">
+                            <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white text-brand-dark shadow-sm">
+                                <x-icon name="wrench" class="h-5 w-5" />
+                            </div>
+                            <div>
+                                <p class="text-[10px] font-bold uppercase tracking-[0.14em] text-muted">Work order</p>
+                                <p class="mt-1 font-mono text-sm font-semibold text-ink">{{ $serviceOrder->work_order_number }}</p>
+                                <p class="mt-0.5 text-xs text-muted">
+                                    Status: {{ $serviceOrder->status->label() }}
+                                    &middot; Odometer masuk {{ $serviceOrder->formattedOdometerIn() }}
+                                </p>
+                            </div>
+                        </div>
+
+                        <a
+                            href="{{ route('staff.service-orders.show', $serviceOrder) }}"
+                            class="inline-flex shrink-0 items-center gap-2 rounded-[10px] bg-ink px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-ink/90"
+                        >
+                            Buka work order
+                            <x-icon name="arrow-right" class="h-4 w-4" />
+                        </a>
+                    </section>
+                @endif
+
                 <section class="grid gap-4 sm:grid-cols-3">
                     <div class="rounded-2xl border border-line bg-white p-5 shadow-card">
                         <p class="text-[10px] font-bold uppercase tracking-[0.14em] text-muted">Jadwal</p>
@@ -170,6 +203,52 @@
                 </section>
             </aside>
         </div>
+
+        @if ($canCheckIn)
+            <x-modal name="check-in-booking" maxWidth="md" focusable>
+                <form method="POST" action="{{ route('staff.bookings.check-in', $booking) }}" class="p-6">
+                    @csrf
+
+                    <h2 class="text-lg font-semibold tracking-tight text-ink">Check-in booking?</h2>
+                    <p class="mt-1 text-sm leading-relaxed text-muted">
+                        Booking {{ $booking->queue_number }} akan diubah menjadi work order dan masuk antrean pengerjaan.
+                    </p>
+
+                    <div class="mt-4 rounded-xl border border-line bg-canvas/40 px-4 py-3">
+                        <p class="text-[10px] font-bold uppercase tracking-[0.14em] text-muted">Motor</p>
+                        <p class="mt-1 text-sm font-semibold text-ink">{{ $booking->motorcycle?->displayName() ?? 'Motor terhapus' }}</p>
+                        <p class="mt-0.5 text-xs text-muted">
+                            {{ $booking->motorcycle?->license_plate ?? 'Tanpa plat' }}
+                            &middot; Odometer terakhir
+                            {{ number_format((int) $booking->motorcycle?->odometer_current, 0, ',', '.') }} km
+                        </p>
+                    </div>
+
+                    <div class="mt-4">
+                        <x-input-label for="odometer_in" value="Odometer masuk (km)" />
+                        <x-text-input
+                            id="odometer_in"
+                            name="odometer_in"
+                            type="number"
+                            min="0"
+                            max="9999999"
+                            class="mt-2 block w-full"
+                            :value="old('odometer_in', $booking->motorcycle?->odometer_current)"
+                            placeholder="Contoh: 24500"
+                        />
+                        <p class="mt-2 text-xs text-muted">
+                            Tidak boleh lebih kecil dari odometer terakhir motor.
+                        </p>
+                        <x-input-error :messages="$errors->get('odometer_in')" class="mt-2" />
+                    </div>
+
+                    <div class="mt-6 flex justify-end gap-3">
+                        <x-secondary-button x-on:click="$dispatch('close')">Tutup</x-secondary-button>
+                        <x-primary-button>Check-in & buat work order</x-primary-button>
+                    </div>
+                </form>
+            </x-modal>
+        @endif
 
         @if ($canNoShow)
             <x-modal name="no-show-booking" maxWidth="md" focusable>

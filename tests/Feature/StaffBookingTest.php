@@ -3,10 +3,13 @@
 namespace Tests\Feature;
 
 use App\Enums\BookingStatus;
+use App\Enums\ServiceOrderStatus;
 use App\Enums\UserRole;
 use App\Models\Booking;
 use App\Models\BookingSlot;
 use App\Models\Motorcycle;
+use App\Models\ServiceOrder;
+use App\Models\ServiceType;
 use App\Models\User;
 use Carbon\CarbonImmutable;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -80,26 +83,74 @@ class StaffBookingTest extends TestCase
         $this->assertSame(BookingStatus::Confirmed, $booking->fresh()->status);
     }
 
-    public function test_staff_can_check_a_booking_in(): void
+    public function test_check_in_modal_renders_on_the_booking_detail_page(): void
     {
         $mechanic = User::factory()->role(UserRole::Mechanic)->create();
         $booking = $this->confirmedBooking(User::factory()->create());
 
         $this->actingAs($mechanic)
-            ->post('/staff/bookings/'.$booking->id.'/check-in')
-            ->assertRedirect('/staff/bookings/'.$booking->id)
+            ->get('/staff/bookings/'.$booking->id)
+            ->assertOk()
+            ->assertSee('Odometer masuk (km)')
+            ->assertSee('Check-in & buat work order', escape: false);
+    }
+
+    public function test_staff_can_check_a_booking_in(): void
+    {
+        $mechanic = User::factory()->role(UserRole::Mechanic)->create();
+        $booking = $this->confirmedBooking(User::factory()->create());
+        $serviceType = ServiceType::factory()->create([
+            'name' => 'Servis ringan',
+            'base_price' => 75000,
+            'estimated_duration_minutes' => 60,
+        ]);
+
+        $booking->services()->create([
+            'service_type_id' => $serviceType->id,
+            'price_snapshot' => 75000,
+            'duration_snapshot_minutes' => 60,
+        ]);
+
+        $odometerIn = $booking->motorcycle->odometer_current + 25;
+
+        $response = $this->actingAs($mechanic)
+            ->post('/staff/bookings/'.$booking->id.'/check-in', ['odometer_in' => $odometerIn]);
+
+        $serviceOrder = ServiceOrder::query()->where('booking_id', $booking->id)->firstOrFail();
+
+        $response
+            ->assertRedirect('/staff/service-orders/'.$serviceOrder->id)
             ->assertSessionHasNoErrors();
 
         $booking->refresh();
 
-        $this->assertSame(BookingStatus::CheckedIn, $booking->status);
+        $this->assertSame(BookingStatus::ConvertedToService, $booking->status);
         $this->assertNotNull($booking->checked_in_at);
+        $this->assertSame($serviceOrder->id, $booking->serviceOrder?->id);
+        $this->assertSame(ServiceOrderStatus::WaitingQueue, $serviceOrder->status);
+        $this->assertSame($odometerIn, $serviceOrder->odometer_in);
+        $this->assertSame($odometerIn, $booking->motorcycle->fresh()->odometer_current);
+
+        $this->assertDatabaseHas('service_order_services', [
+            'service_order_id' => $serviceOrder->id,
+            'service_type_id' => $serviceType->id,
+            'description' => 'Servis ringan',
+            'unit_price_snapshot' => 75000,
+            'duration_snapshot_minutes' => 60,
+        ]);
 
         $this->assertDatabaseHas('booking_status_logs', [
             'booking_id' => $booking->id,
             'changed_by' => $mechanic->id,
             'old_status' => BookingStatus::Confirmed->value,
-            'new_status' => BookingStatus::CheckedIn->value,
+            'new_status' => BookingStatus::ConvertedToService->value,
+        ]);
+
+        $this->assertDatabaseHas('service_status_logs', [
+            'service_order_id' => $serviceOrder->id,
+            'changed_by' => $mechanic->id,
+            'old_status' => null,
+            'new_status' => ServiceOrderStatus::WaitingQueue->value,
         ]);
     }
 
@@ -107,16 +158,18 @@ class StaffBookingTest extends TestCase
     {
         $cashier = User::factory()->role(UserRole::Cashier)->create();
         $booking = $this->confirmedBooking(User::factory()->create());
+        $odometerIn = $booking->motorcycle->odometer_current;
 
         $this->actingAs($cashier)
-            ->post('/staff/bookings/'.$booking->id.'/check-in')
+            ->post('/staff/bookings/'.$booking->id.'/check-in', ['odometer_in' => $odometerIn])
             ->assertSessionHasNoErrors();
 
         $this->actingAs($cashier)
-            ->post('/staff/bookings/'.$booking->id.'/check-in')
+            ->post('/staff/bookings/'.$booking->id.'/check-in', ['odometer_in' => $odometerIn])
             ->assertForbidden();
 
         $this->assertSame(1, $booking->statusLogs()->count());
+        $this->assertSame(1, ServiceOrder::query()->where('booking_id', $booking->id)->count());
     }
 
     public function test_staff_can_mark_a_booking_as_no_show_and_release_the_slot(): void

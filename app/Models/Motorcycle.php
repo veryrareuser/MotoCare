@@ -54,4 +54,12 @@ class Motorcycle extends Model
     {
         return $this->hasMany(Booking::class);
     }
+
+    /**
+     * @return HasMany<ServiceOrder, $this>
+     */
+    public function serviceOrders(): HasMany
+    {
+        return $this->hasMany(ServiceOrder::class);
+    }
 }

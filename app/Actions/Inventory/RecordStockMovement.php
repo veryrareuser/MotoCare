@@ -26,14 +26,17 @@ class RecordStockMovement
         User $performedBy,
         ?string $notes = null,
         bool $increases = true,
+        ?string $referenceType = null,
+        ?int $referenceId = null,
+        string $errorKey = 'quantity',
     ): InventoryMovement {
         if ($quantity <= 0) {
             throw ValidationException::withMessages([
-                'quantity' => 'Jumlah harus lebih dari nol.',
+                $errorKey => 'Jumlah harus lebih dari nol.',
             ]);
         }
 
-        return DB::transaction(function () use ($sparepart, $type, $quantity, $performedBy, $notes, $increases): InventoryMovement {
+        return DB::transaction(function () use ($sparepart, $type, $quantity, $performedBy, $notes, $increases, $referenceType, $referenceId, $errorKey): InventoryMovement {
             $locked = Sparepart::query()
                 ->whereKey($sparepart->getKey())
                 ->lockForUpdate()
@@ -51,7 +54,7 @@ class RecordStockMovement
 
             if ($after < 0) {
                 throw ValidationException::withMessages([
-                    'quantity' => 'Stok tidak mencukupi. Sisa stok saat ini '.$this->formatQuantity($before).'.',
+                    $errorKey => 'Stok tidak mencukupi. Sisa stok saat ini '.$this->formatQuantity($before).'.',
                 ]);
             }
 
@@ -62,6 +65,8 @@ class RecordStockMovement
                 'quantity' => $quantity,
                 'quantity_before' => $before,
                 'quantity_after' => $after,
+                'reference_type' => $referenceType,
+                'reference_id' => $referenceId,
                 'performed_by' => $performedBy->getKey(),
                 'notes' => $notes,
             ]);

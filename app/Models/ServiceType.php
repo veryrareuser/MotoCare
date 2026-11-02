@@ -46,6 +46,14 @@ class ServiceType extends Model
         return $this->hasMany(BookingService::class);
     }
 
+    /**
+     * @return HasMany<ServiceOrderService, $this>
+     */
+    public function serviceOrderServices(): HasMany
+    {
+        return $this->hasMany(ServiceOrderService::class);
+    }
+
     public function formattedPrice(): string
     {
         return 'Rp '.number_format((float) $this->base_price, 0, ',', '.');

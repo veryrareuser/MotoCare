@@ -2,6 +2,10 @@
 
 use App\Http\Controllers\Staff\BookingController;
 use App\Http\Controllers\Staff\DashboardController;
+use App\Http\Controllers\Staff\ServiceOrderController;
+use App\Http\Controllers\Staff\ServiceOrderMechanicController;
+use App\Http\Controllers\Staff\ServiceOrderPartController;
+use App\Http\Controllers\Staff\ServiceOrderServiceController;
 use App\Http\Controllers\Staff\ServiceTypeController;
 use App\Http\Controllers\Staff\SparepartCompatibilityController;
 use App\Http\Controllers\Staff\SparepartController;
@@ -35,6 +39,53 @@ Route::middleware(['auth'])->prefix('staff')->name('staff.')->group(function () 
         Route::patch('/bookings/{booking}/no-show', [BookingController::class, 'noShow'])
             ->whereNumber('booking')
             ->name('bookings.no-show');
+    });
+
+    Route::middleware('role:admin,mechanic,cashier,owner')->group(function () {
+        Route::get('/service-orders', [ServiceOrderController::class, 'index'])
+            ->name('service-orders.index');
+
+        Route::get('/service-orders/{serviceOrder}', [ServiceOrderController::class, 'show'])
+            ->whereNumber('serviceOrder')
+            ->name('service-orders.show');
+    });
+
+    Route::middleware('role:admin,mechanic,cashier')->group(function () {
+        Route::get('/service-orders/create', [ServiceOrderController::class, 'create'])
+            ->name('service-orders.create');
+
+        Route::post('/service-orders', [ServiceOrderController::class, 'store'])
+            ->name('service-orders.store');
+
+        Route::post('/service-orders/{serviceOrder}/mechanics', [ServiceOrderMechanicController::class, 'store'])
+            ->whereNumber('serviceOrder')
+            ->name('service-orders.mechanics.store');
+
+        Route::delete('/service-orders/{serviceOrder}/mechanics/{assignment}', [ServiceOrderMechanicController::class, 'destroy'])
+            ->whereNumber(['serviceOrder', 'assignment'])
+            ->name('service-orders.mechanics.destroy');
+    });
+
+    Route::middleware('role:admin,mechanic')->group(function () {
+        Route::patch('/service-orders/{serviceOrder}/status', [ServiceOrderController::class, 'updateStatus'])
+            ->whereNumber('serviceOrder')
+            ->name('service-orders.status.update');
+
+        Route::post('/service-orders/{serviceOrder}/services', [ServiceOrderServiceController::class, 'store'])
+            ->whereNumber('serviceOrder')
+            ->name('service-orders.services.store');
+
+        Route::delete('/service-orders/{serviceOrder}/services/{line}', [ServiceOrderServiceController::class, 'destroy'])
+            ->whereNumber(['serviceOrder', 'line'])
+            ->name('service-orders.services.destroy');
+
+        Route::post('/service-orders/{serviceOrder}/parts', [ServiceOrderPartController::class, 'store'])
+            ->whereNumber('serviceOrder')
+            ->name('service-orders.parts.store');
+
+        Route::delete('/service-orders/{serviceOrder}/parts/{line}', [ServiceOrderPartController::class, 'destroy'])
+            ->whereNumber(['serviceOrder', 'line'])
+            ->name('service-orders.parts.destroy');
     });
 
     Route::middleware('role:admin,mechanic,inventory_staff,cashier,owner')->group(function () {

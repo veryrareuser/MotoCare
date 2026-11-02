@@ -45,6 +45,7 @@ class DatabaseSeeder extends Seeder
             SparepartSeeder::class,
             WorkshopScheduleSeeder::class,
             BookingSeeder::class,
+            ServiceOrderSeeder::class,
         ]);
     }
 }
