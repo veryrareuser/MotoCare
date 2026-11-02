@@ -14,7 +14,7 @@
 
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
-    <body class="min-h-screen bg-canvas font-sans text-ink antialiased" x-data="{ sidebarOpen: false }">
+    <body class="min-h-screen bg-canvas font-sans text-ink antialiased overflow-x-hidden" x-data="{ sidebarOpen: false }">
         <div class="min-h-screen lg:pl-[248px]">
             @include('layouts.sidebar')
 

@@ -77,7 +77,7 @@
             @csrf
 
             <div class="space-y-5">
-                <section class="rounded-2xl border border-line bg-white p-6 shadow-card">
+                <section class="min-w-0 rounded-2xl border border-line bg-white p-6 shadow-card">
                     <div class="flex items-center gap-3">
                         <span class="flex h-7 w-7 items-center justify-center rounded-full bg-ink text-xs font-bold text-white">1</span>
                         <div>
@@ -120,7 +120,7 @@
                     @endif
                 </section>
 
-                <section class="rounded-2xl border border-line bg-white p-6 shadow-card">
+                <section class="min-w-0 rounded-2xl border border-line bg-white p-6 shadow-card">
                     <div class="flex items-center gap-3">
                         <span class="flex h-7 w-7 items-center justify-center rounded-full bg-ink text-xs font-bold text-white">2</span>
                         <div>
@@ -166,7 +166,7 @@
                     @endif
                 </section>
 
-                <section class="rounded-2xl border border-line bg-white p-6 shadow-card">
+                <section class="min-w-0 rounded-2xl border border-line bg-white p-6 shadow-card">
                     <div class="flex items-center gap-3">
                         <span class="flex h-7 w-7 items-center justify-center rounded-full bg-ink text-xs font-bold text-white">3</span>
                         <div>
@@ -230,7 +230,7 @@
                     @endif
                 </section>
 
-                <section class="rounded-2xl border border-line bg-white p-6 shadow-card">
+                <section class="min-w-0 rounded-2xl border border-line bg-white p-6 shadow-card">
                     <label for="customer_note" class="text-base font-semibold tracking-tight text-ink">Catatan untuk mekanik</label>
                     <p class="mt-0.5 text-xs text-muted">Opsional. Jelaskan keluhan atau permintaan khusus.</p>
 
@@ -245,7 +245,7 @@
                 </section>
             </div>
 
-            <aside class="xl:sticky xl:top-[108px] xl:self-start">
+            <aside class="min-w-0 xl:sticky xl:top-[108px] xl:self-start">
                 <div class="rounded-2xl border border-line bg-white p-6 shadow-card">
                     <h3 class="text-base font-semibold tracking-tight text-ink">Ringkasan booking</h3>
 

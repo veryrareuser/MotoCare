@@ -14,7 +14,7 @@
 
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
-    <body class="min-h-screen bg-white font-sans text-ink antialiased">
+    <body class="min-h-screen bg-white font-sans text-ink antialiased overflow-x-hidden">
         <div class="min-h-screen lg:grid lg:grid-cols-[minmax(0,604px)_1fr]">
             <aside class="relative hidden overflow-hidden bg-ink lg:flex lg:flex-col lg:justify-between lg:p-10">
                 <div class="pointer-events-none absolute -right-24 top-1/3 h-[420px] w-[420px] rounded-full border border-white/10"></div>
