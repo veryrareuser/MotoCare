@@ -83,7 +83,7 @@
 
         <section class="overflow-hidden rounded-2xl border border-line bg-white shadow-card">
             <div class="overflow-x-auto">
-                <table class="w-full min-w-[1000px] text-left">
+                <table class="w-full text-left">
                     <thead class="border-b border-line bg-canvas/60">
                         <tr class="text-[10px] font-bold uppercase tracking-[0.14em] text-muted">
                             <th class="px-6 py-4 font-bold">Pengingat</th>

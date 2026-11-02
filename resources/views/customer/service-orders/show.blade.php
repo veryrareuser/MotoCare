@@ -114,7 +114,7 @@
                     </div>
 
                     <div class="overflow-x-auto">
-                        <table class="w-full min-w-[560px] text-left">
+                        <table class="w-full text-left">
                             <thead class="border-b border-line bg-canvas/60">
                                 <tr class="text-[10px] font-bold uppercase tracking-[0.14em] text-muted">
                                     <th class="px-6 py-3 font-bold">Layanan</th>
@@ -161,7 +161,7 @@
                     </div>
 
                     <div class="overflow-x-auto">
-                        <table class="w-full min-w-[560px] text-left">
+                        <table class="w-full text-left">
                             <thead class="border-b border-line bg-canvas/60">
                                 <tr class="text-[10px] font-bold uppercase tracking-[0.14em] text-muted">
                                     <th class="px-6 py-3 font-bold">Sparepart</th>

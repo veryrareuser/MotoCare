@@ -181,7 +181,7 @@
             </div>
 
             <div class="mt-6 overflow-x-auto">
-                <table class="w-full min-w-[620px] text-left">
+                <table class="w-full text-left">
                     <thead>
                         <tr class="border-b border-line text-[10px] font-bold uppercase tracking-[0.14em] text-muted">
                             <th class="pb-3 pr-4 font-bold">Tanggal</th>
