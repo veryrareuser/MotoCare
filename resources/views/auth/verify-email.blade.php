@@ -15,7 +15,7 @@
 
         <form method="POST" action="{{ route('logout') }}" class="flex-1">
             @csrf
-            <x-secondary-button class="w-full">Keluar</x-secondary-button>
+            <x-secondary-button type="submit" class="w-full">Keluar</x-secondary-button>
         </form>
     </div>
 </x-guest-layout>
