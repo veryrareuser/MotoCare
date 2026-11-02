@@ -62,4 +62,12 @@ class Motorcycle extends Model
     {
         return $this->hasMany(ServiceOrder::class);
     }
+
+    /**
+     * @return HasMany<MaintenanceReminder, $this>
+     */
+    public function maintenanceReminders(): HasMany
+    {
+        return $this->hasMany(MaintenanceReminder::class);
+    }
 }

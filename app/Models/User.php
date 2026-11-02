@@ -83,6 +83,14 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasMany(ServiceOrderMechanic::class, 'mechanic_id');
     }
 
+    /**
+     * @return HasMany<MaintenanceReminder, $this>
+     */
+    public function createdMaintenanceReminders(): HasMany
+    {
+        return $this->hasMany(MaintenanceReminder::class, 'created_by');
+    }
+
     public function initials(): string
     {
         return Str::of($this->name)

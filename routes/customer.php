@@ -4,6 +4,8 @@ use App\Http\Controllers\Customer\BookingController;
 use App\Http\Controllers\Customer\DashboardController;
 use App\Http\Controllers\Customer\InvoiceController;
 use App\Http\Controllers\Customer\MotorcycleController;
+use App\Http\Controllers\Customer\ReminderController;
+use App\Http\Controllers\Customer\ServiceHistoryController;
 use App\Http\Controllers\Customer\SparepartCatalogController;
 use Illuminate\Support\Facades\Route;
 
@@ -26,6 +28,17 @@ Route::middleware(['auth', 'role:customer'])->group(function () {
         ->name('bookings.cancel');
 
     Route::get('/spareparts', SparepartCatalogController::class)->name('spareparts.index');
+
+    Route::get('/tracking', [ServiceHistoryController::class, 'active'])->name('tracking.index');
+    Route::get('/service-history', [ServiceHistoryController::class, 'index'])->name('service-history.index');
+    Route::get('/service-history/{serviceOrder}', [ServiceHistoryController::class, 'show'])
+        ->whereNumber('serviceOrder')
+        ->name('service-history.show');
+
+    Route::get('/reminders', [ReminderController::class, 'index'])->name('reminders.index');
+    Route::get('/reminders/{reminder}', [ReminderController::class, 'show'])
+        ->whereNumber('reminder')
+        ->name('reminders.show');
 
     Route::get('/invoices', [InvoiceController::class, 'index'])->name('invoices.index');
     Route::get('/invoices/{invoice}/receipt', [InvoiceController::class, 'receipt'])

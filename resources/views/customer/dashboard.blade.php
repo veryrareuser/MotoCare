@@ -18,16 +18,13 @@
                         Booking servis berikutnya dan nikmati perjalanan tanpa khawatir.
                     </p>
 
-                    <button
-                        type="button"
-                        disabled
-                        title="Fitur booking tersedia pada fase berikutnya"
-                        class="mt-6 inline-flex cursor-not-allowed items-center gap-2 rounded-[10px] bg-brand px-5 py-3 text-sm font-bold text-ink opacity-70"
+                    <a
+                        href="{{ route('bookings.create') }}"
+                        class="mt-6 inline-flex items-center gap-2 rounded-[10px] bg-brand px-5 py-3 text-sm font-bold text-ink transition hover:bg-brand-accent"
                     >
                         Booking Servis
                         <x-icon name="arrow-right" class="h-4 w-4" />
-                        <span class="rounded-full bg-ink/10 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wide">Segera</span>
-                    </button>
+                    </a>
                 </div>
 
                 <div class="relative hidden h-56 w-56 shrink-0 items-center justify-center sm:flex">
@@ -67,29 +64,62 @@
                 <div class="flex items-start justify-between gap-4">
                     <div>
                         <p class="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted">Servis Sedang Berjalan</p>
-                        <h3 class="mt-2 text-lg font-semibold tracking-tight text-ink">Belum ada servis aktif</h3>
+                        <h3 class="mt-2 text-lg font-semibold tracking-tight text-ink">
+                            {{ $activeServiceOrder ? $activeServiceOrder->motorcycle?->displayName() ?? 'Motor terhapus' : 'Belum ada servis aktif' }}
+                        </h3>
                     </div>
-                    <span class="rounded-full bg-canvas px-3 py-1 text-[10px] font-bold uppercase tracking-wide text-muted">
-                        Kosong
+                    <span class="rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-wide {{ $activeServiceOrder?->status->tone() ?? 'bg-canvas text-muted' }}">
+                        {{ $activeServiceOrder?->status->label() ?? 'Kosong' }}
                     </span>
                 </div>
 
-                <div class="mt-8 flex flex-col items-center justify-center rounded-xl border border-dashed border-line bg-canvas/60 px-6 py-10 text-center">
-                    <div class="flex h-12 w-12 items-center justify-center rounded-full bg-brand-soft text-brand-dark">
-                        <x-icon name="wrench" class="h-6 w-6" />
+                @if ($activeServiceOrder)
+                    <div class="mt-5 space-y-3">
+                        <div class="flex flex-wrap items-center gap-2 text-xs text-muted">
+                            <span class="rounded-lg bg-brand-soft px-2.5 py-1 font-mono text-[11px] font-bold text-brand-dark">
+                                {{ $activeServiceOrder->work_order_number }}
+                            </span>
+                            <span>{{ $activeServiceOrder->motorcycle?->license_plate ?? 'Tanpa plat' }}</span>
+                            <span>&middot;</span>
+                            <span>Check-in {{ $activeServiceOrder->checkedInAtLocal()->translatedFormat('d M Y H:i') }}</span>
+                        </div>
+
+                        <div class="rounded-xl border border-line bg-canvas/40 px-4 py-3">
+                            <p class="text-xs leading-relaxed text-muted">
+                                {{ $activeServiceOrder->services->count() }} layanan dan
+                                {{ $activeServiceOrder->parts->count() }} sparepart tercatat.
+                                Estimasi total {{ $activeServiceOrder->formattedTotalAmount() }}.
+                            </p>
+                        </div>
+
+                        <a
+                            href="{{ route('service-history.show', $activeServiceOrder) }}"
+                            class="inline-flex items-center gap-2 text-sm font-semibold text-brand-dark transition hover:text-ink"
+                        >
+                            Lihat progres servis
+                            <x-icon name="arrow-right" class="h-4 w-4" />
+                        </a>
                     </div>
-                    <p class="mt-4 text-sm font-semibold text-ink">Belum ada servis berjalan</p>
-                    <p class="mt-1 max-w-xs text-xs leading-relaxed text-muted">
-                        Setelah Anda melakukan booking dan check-in, progres servis akan tampil di sini.
-                    </p>
-                </div>
+                @else
+                    <div class="mt-8 flex flex-col items-center justify-center rounded-xl border border-dashed border-line bg-canvas/60 px-6 py-10 text-center">
+                        <div class="flex h-12 w-12 items-center justify-center rounded-full bg-brand-soft text-brand-dark">
+                            <x-icon name="wrench" class="h-6 w-6" />
+                        </div>
+                        <p class="mt-4 text-sm font-semibold text-ink">Belum ada servis berjalan</p>
+                        <p class="mt-1 max-w-xs text-xs leading-relaxed text-muted">
+                            Setelah Anda melakukan booking dan check-in, progres servis akan tampil di sini.
+                        </p>
+                    </div>
+                @endif
             </article>
 
             <article class="rounded-2xl border border-line bg-white p-6 shadow-card sm:p-7">
                 <div class="flex items-start justify-between gap-4">
                     <div>
                         <p class="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted">Pengingat Servis</p>
-                        <h3 class="mt-2 text-lg font-semibold tracking-tight text-ink">Belum ada pengingat</h3>
+                        <h3 class="mt-2 text-lg font-semibold tracking-tight text-ink">
+                            {{ $dueReminders->isEmpty() ? 'Tidak ada pengingat jatuh tempo' : $dueReminders->count().' pengingat jatuh tempo' }}
+                        </h3>
                     </div>
                     <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-warm text-[#8A5A00]">
                         <x-icon name="bell" class="h-5 w-5" />
@@ -100,9 +130,34 @@
                     Pengingat dibuat manual oleh staf bengkel berdasarkan tanggal atau kilometer motor Anda.
                 </p>
 
-                <div class="mt-6 rounded-xl border border-dashed border-line bg-canvas/60 px-4 py-5 text-center">
-                    <p class="text-xs text-muted">Tidak ada pengingat jatuh tempo saat ini.</p>
-                </div>
+                @if ($dueReminders->isEmpty())
+                    <div class="mt-6 rounded-xl border border-dashed border-line bg-canvas/60 px-4 py-5 text-center">
+                        <p class="text-xs text-muted">Tidak ada pengingat jatuh tempo saat ini.</p>
+                    </div>
+                @else
+                    <div class="mt-5 space-y-2">
+                        @foreach ($dueReminders as $reminder)
+                            <a
+                                href="{{ route('reminders.show', $reminder) }}"
+                                class="block rounded-xl border border-line bg-canvas/40 px-4 py-3 transition hover:border-brand/40 hover:bg-canvas"
+                            >
+                                <p class="text-xs font-semibold text-ink">{{ $reminder->title }}</p>
+                                <p class="mt-1 text-[11px] text-muted">
+                                    {{ $reminder->motorcycle?->displayName() ?? 'Motor terhapus' }}
+                                    &middot; jatuh tempo {{ $reminder->dueSummary() }}
+                                </p>
+                            </a>
+                        @endforeach
+                    </div>
+
+                    <a
+                        href="{{ route('reminders.index') }}"
+                        class="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-brand-dark transition hover:text-ink"
+                    >
+                        Lihat semua pengingat
+                        <x-icon name="arrow-right" class="h-4 w-4" />
+                    </a>
+                @endif
             </article>
         </section>
 
@@ -112,7 +167,17 @@
                     <p class="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted">Aktivitas Terkini</p>
                     <h3 class="mt-2 text-lg font-semibold tracking-tight text-ink">Riwayat Servis Terbaru</h3>
                 </div>
-                <span class="text-xs font-semibold text-muted">Belum ada data</span>
+
+                @if ($recentHistory->isNotEmpty())
+                    <a
+                        href="{{ route('service-history.index') }}"
+                        class="text-xs font-semibold text-brand-dark transition hover:text-ink"
+                    >
+                        Lihat semua
+                    </a>
+                @else
+                    <span class="text-xs font-semibold text-muted">Belum ada data</span>
+                @endif
             </div>
 
             <div class="mt-6 overflow-x-auto">
@@ -126,12 +191,54 @@
                             <th class="pb-3 font-bold">Status</th>
                         </tr>
                     </thead>
-                    <tbody>
-                        <tr>
-                            <td colspan="5" class="py-8 text-center text-xs text-muted">
-                                Riwayat servis akan muncul setelah servis pertama Anda selesai.
-                            </td>
-                        </tr>
+                    <tbody class="divide-y divide-line">
+                        @forelse ($recentHistory as $serviceOrder)
+                            @php
+                                $serviceNames = $serviceOrder->services
+                                    ->map(fn ($service) => $service->description)
+                                    ->filter()
+                                    ->take(2)
+                                    ->implode(', ');
+                            @endphp
+
+                            <tr>
+                                <td class="py-4 pr-4 align-top">
+                                    <p class="text-xs font-semibold text-ink">
+                                        {{ $serviceOrder->completed_at?->timezone(config('app.display_timezone'))->translatedFormat('d M Y') ?? '—' }}
+                                    </p>
+                                    <a
+                                        href="{{ route('service-history.show', $serviceOrder) }}"
+                                        class="mt-0.5 block font-mono text-[11px] text-brand-dark hover:underline"
+                                    >
+                                        {{ $serviceOrder->work_order_number }}
+                                    </a>
+                                </td>
+                                <td class="py-4 pr-4 align-top">
+                                    <p class="text-xs font-semibold text-ink">{{ $serviceOrder->motorcycle?->displayName() ?? 'Motor terhapus' }}</p>
+                                    <p class="mt-0.5 text-[11px] text-muted">{{ $serviceOrder->motorcycle?->license_plate ?? 'Tanpa plat' }}</p>
+                                </td>
+                                <td class="py-4 pr-4 align-top">
+                                    <p class="text-xs text-ink">{{ $serviceNames ?: 'Tanpa layanan tercatat' }}</p>
+                                    <p class="mt-0.5 text-[11px] text-muted">
+                                        {{ $serviceOrder->services->count() }} layanan &middot; {{ $serviceOrder->parts->count() }} sparepart
+                                    </p>
+                                </td>
+                                <td class="py-4 pr-4 align-top">
+                                    <p class="text-xs font-semibold text-ink">{{ $serviceOrder->formattedTotalAmount() }}</p>
+                                </td>
+                                <td class="py-4 align-top">
+                                    <span class="inline-flex rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide {{ $serviceOrder->status->tone() }}">
+                                        {{ $serviceOrder->status->label() }}
+                                    </span>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="5" class="py-8 text-center text-xs text-muted">
+                                    Riwayat servis akan muncul setelah servis pertama Anda selesai.
+                                </td>
+                            </tr>
+                        @endforelse
                     </tbody>
                 </table>
             </div>

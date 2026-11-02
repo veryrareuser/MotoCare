@@ -47,6 +47,8 @@ class DatabaseSeeder extends Seeder
             BookingSeeder::class,
             ServiceOrderSeeder::class,
             InvoiceSeeder::class,
+            MaintenanceReminderSeeder::class,
+            NotificationSeeder::class,
         ]);
     }
 }

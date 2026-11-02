@@ -3,6 +3,7 @@
 use App\Http\Controllers\Staff\BookingController;
 use App\Http\Controllers\Staff\DashboardController;
 use App\Http\Controllers\Staff\InvoiceController;
+use App\Http\Controllers\Staff\MaintenanceReminderController;
 use App\Http\Controllers\Staff\ServiceOrderController;
 use App\Http\Controllers\Staff\ServiceOrderMechanicController;
 use App\Http\Controllers\Staff\ServiceOrderPartController;
@@ -87,6 +88,39 @@ Route::middleware(['auth'])->prefix('staff')->name('staff.')->group(function () 
         Route::delete('/service-orders/{serviceOrder}/parts/{line}', [ServiceOrderPartController::class, 'destroy'])
             ->whereNumber(['serviceOrder', 'line'])
             ->name('service-orders.parts.destroy');
+    });
+
+    Route::middleware('role:admin,owner')->group(function () {
+        Route::get('/reminders', [MaintenanceReminderController::class, 'index'])
+            ->name('reminders.index');
+
+        Route::get('/reminders/{reminder}', [MaintenanceReminderController::class, 'show'])
+            ->whereNumber('reminder')
+            ->name('reminders.show');
+    });
+
+    Route::middleware('role:admin')->group(function () {
+        Route::get('/reminders/create', [MaintenanceReminderController::class, 'create'])
+            ->name('reminders.create');
+
+        Route::post('/reminders', [MaintenanceReminderController::class, 'store'])
+            ->name('reminders.store');
+
+        Route::get('/reminders/{reminder}/edit', [MaintenanceReminderController::class, 'edit'])
+            ->whereNumber('reminder')
+            ->name('reminders.edit');
+
+        Route::patch('/reminders/{reminder}', [MaintenanceReminderController::class, 'update'])
+            ->whereNumber('reminder')
+            ->name('reminders.update');
+
+        Route::patch('/reminders/{reminder}/cancel', [MaintenanceReminderController::class, 'cancel'])
+            ->whereNumber('reminder')
+            ->name('reminders.cancel');
+
+        Route::patch('/reminders/{reminder}/complete', [MaintenanceReminderController::class, 'complete'])
+            ->whereNumber('reminder')
+            ->name('reminders.complete');
     });
 
     Route::middleware('role:admin,cashier,owner')->group(function () {

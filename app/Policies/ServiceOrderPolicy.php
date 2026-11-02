@@ -25,6 +25,15 @@ class ServiceOrderPolicy
     }
 
     /**
+     * Determine whether the customer can read their own service history.
+     */
+    public function viewHistory(User $user, ServiceOrder $serviceOrder): bool
+    {
+        return $user->role === UserRole::Customer
+            && $serviceOrder->customer_id === $user->getKey();
+    }
+
+    /**
      * Determine whether the user can open a walk-in work order.
      */
     public function create(User $user): bool
