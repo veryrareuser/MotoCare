@@ -26,3 +26,15 @@ _ide_helper.php
 Homestead.json
 Homestead.yaml
 Thumbs.db
+
+# Local agent skill caches (not project source)
+/.agents/skills/
+/.claude/skills/
+
+# Project documentation (not source code)
+/MotoCare (PRD).md
+/MotoCare_Database_Architecture.md
+/MotoCare_Implementation_Plan.md
+/MotoCare_Kelompok_2.md
+/Motocare BRD.md
+/System Request Motocare.md
